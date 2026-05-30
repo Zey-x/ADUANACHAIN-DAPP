@@ -1,43 +1,990 @@
+@if (!sesionLista) {
+  <!-- ===================================================== -->
+  <!-- VISTA PÚBLICA / LANDING PAGE -->
+  <!-- ===================================================== -->
+  <div class="landing-page">
+    <header class="landing-header">
+      <div class="landing-brand">
+        <div class="landing-brand-icon">⬡</div>
 
-
-<main class="main">
-    <div style="text-align:left"><img src="images/logoTecNM.png" width="90%"></div>
-    <div class="content">
-      <div style="text-align:center">
-        <h1>Plantilla de aplicación DApp</h1>
-        <h2>Angular 20 + Ethers.js</h2>
-        <p><a href="https://angular-ethers-starter.web.app">https://angular-ethers-starter.web.app</a></p>
-        <hr/>
-        <h3>Tecnol&oacute;gico Nacional de M&eacute;xico, Campus Veracruz</h3>
-        <h3>MSI. Genaro M&eacute;ndez</h3>
-        <h4>Materia: Transacciones computacionales con Blockchain</h4>
-        <h4>Mayo 2026</h4>
-        <p>Proyecto en Bitbucket</p>
-        <p><a href="https://bitbucket.org/tecnmver/angular-hardhat-starter-dapp.git/src">https://bitbucket.org/tecnmver/angular-hardhat-starter-dapp.git/src</a></p>
-        <p>
-        <p><code>git clone https://bitbucket.org/tecnmver/angular-hardhat-starter-dapp.git</code></p>
-        <p>Aplicación referencia Counter en: <a href="http://genaromendez.com">http://genaromendez.com</a></p>
-        <br/>
-        <hr/>
-        @if (web3.account()) {
-          <h3>1. Ejemplo de lectura de saldo en ETH.</h3>  
-          <p>Cuenta conectada: <b>{{ web3.account() }} </b></p> 
-          <p>{{ web3.balance() }}</p>
-          <hr/>
-          <h3>2. Ejemplo de lectura de un Token ERC20</h3>
-          <p>Lectura de Token ERC20 en: {{ web3.contractAddressITV }}</p>
-          <p>{{ web3.balanceToken() }}</p>
-          <hr/>
-          <h3>3. Ejemplo de lectura, escritura y captura de eventos de un Smart Contract</h3>
-          <p>Contrato Counter en : {{web3.contractAddressContador}}</p>
-          <p>{{web3.contador()}}</p>
-          <p><button [disabled]="isClickedInc" (click)="incrementar()">Incrementar</button></p>
-        } @else {
-          <p><button (click)="web3.connectWallet()">Conectar Wallet</button></p>
-        }  
+        <div>
+          <h1>AduanaChain</h1>
+          <p>DApp para gestión y seguimiento aduanal</p>
+        </div>
       </div>
-    </div>
-    <div style="text-align:left"><img src="images/logoITV.png" width="90%"></div>
-</main>
+    </header>
 
-<router-outlet />
+    <section class="landing-hero">
+      <div class="landing-hero-texto">
+        <h2>AduanaChain</h2>
+
+        <p>Plataforma de gestión y seguimiento aduanal basada en blockchain.</p>
+      </div>
+
+      <div class="landing-hero-visual" aria-hidden="true">
+        <div class="cadena-nodo nodo-uno"></div>
+        <div class="cadena-nodo nodo-dos"></div>
+        <div class="cadena-nodo nodo-tres"></div>
+
+        <div class="cadena-linea linea-uno"></div>
+        <div class="cadena-linea linea-dos"></div>
+
+        <div class="contenedor-blockchain">
+          <div class="contenedor-lineas"></div>
+          <div class="escudo-blockchain">⬡</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-informacion">
+      <article class="landing-card que-es">
+        <div class="landing-card-icon">⬡</div>
+
+        <div>
+          <h3>¿Qué es AduanaChain?</h3>
+
+          <p>
+            AduanaChain utiliza tecnología blockchain para registrar, consultar y dar seguimiento a
+            mercancías durante su proceso aduanal, conectando a los actores autorizados en un
+            entorno seguro y verificable.
+          </p>
+        </div>
+      </article>
+
+      <article class="landing-card como-funciona">
+        <h3>¿Cómo funciona?</h3>
+
+        <div class="landing-pasos">
+          <div class="landing-paso">
+            <span class="paso-numero">1</span>
+            <div class="paso-icono">◈</div>
+            <strong>Conecta tu wallet</strong>
+            <p>Inicia sesión mediante MetaMask.</p>
+          </div>
+
+          <span class="paso-flecha">→</span>
+
+          <div class="landing-paso">
+            <span class="paso-numero">2</span>
+            <div class="paso-icono">⬡</div>
+            <strong>Consulta o gestiona</strong>
+            <p>Opera de acuerdo con tu rol asignado.</p>
+          </div>
+
+          <span class="paso-flecha">→</span>
+
+          <div class="landing-paso">
+            <span class="paso-numero">3</span>
+            <div class="paso-icono">✓</div>
+            <strong>Verifica movimientos</strong>
+            <p>Consulta hashes e historial en Sepolia.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="landing-wallet">
+      <div class="landing-wallet-visual">
+        <div class="wallet-ilustracion">
+          <span class="wallet-tapa"></span>
+          <span class="wallet-cuerpo"></span>
+          <span class="wallet-boton"></span>
+        </div>
+      </div>
+
+      <div class="landing-wallet-contenido">
+        <h3>Conecta tu wallet</h3>
+
+        <p>
+          Conecta MetaMask para acceder a la plataforma y comenzar a gestionar tus operaciones
+          aduanales.
+        </p>
+
+        <button
+          type="button"
+          class="landing-boton-wallet"
+          (click)="conectarWallet()"
+          [disabled]="iniciandoSesion"
+        >
+          @if (iniciandoSesion) {
+            <span class="spinner"></span>
+            Identificando tu acceso...
+          } @else {
+            ◧&nbsp; Conectar Wallet
+          }
+        </button>
+
+        <small> 🔒 No almacenamos tus claves. Tu conexión permanece bajo tu control. </small>
+
+        @if (iniciandoSesion) {
+          <p class="landing-cargando">Consultando tu rol y permisos dentro de AduanaChain...</p>
+        }
+
+        @if (mensaje && !iniciandoSesion && web3.account() && !sesionLista) {
+          <p class="landing-error">
+            {{ mensaje }}
+          </p>
+        }
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <div class="landing-footer-item">
+        <span class="footer-icon ethereum">♦</span>
+
+        <div>
+          <small>Red blockchain</small>
+          <strong>Sepolia Testnet <i></i></strong>
+        </div>
+      </div>
+
+      <div class="landing-footer-item">
+        <span class="footer-icon">⌁</span>
+
+        <div>
+          <small>Tecnología blockchain</small>
+          <strong>Integridad operativa</strong>
+        </div>
+      </div>
+
+      <div class="landing-footer-item">
+        <span class="footer-icon">⬡</span>
+
+        <div>
+          <small>Interoperabilidad</small>
+          <strong>Actores conectados</strong>
+        </div>
+      </div>
+
+      <div class="landing-footer-item">
+        <span class="footer-icon">✓</span>
+
+        <div>
+          <small>Proceso aduanal</small>
+          <strong>Seguimiento verificable</strong>
+        </div>
+      </div>
+    </footer>
+  </div>
+} @else {
+  <!-- ===================================================== -->
+  <!-- DASHBOARD INTERNO -->
+  <!-- ===================================================== -->
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="marca">
+        <div class="marca-icono">⬡</div>
+
+        <div>
+          <h1>AduanaChain</h1>
+          <p>DApp para gestión aduanal</p>
+        </div>
+      </div>
+
+      <nav class="menu">
+        <a class="menu-item activo" href="#resumen">
+          <span>▣</span>
+          Dashboard
+        </a>
+
+        @if (puedeAdministrar()) {
+          <p class="menu-titulo">Gestión administrativa</p>
+
+          <a class="menu-item" href="#acciones">
+            <span>♙</span>
+            Usuarios
+          </a>
+
+          <a class="menu-item" href="#acciones">
+            <span>◈</span>
+            Autorizaciones
+          </a>
+        }
+
+        @if (puedeRegistrarMercancia() || puedeRevisarOAprobar() || puedeConfirmarEntrega()) {
+          <p class="menu-titulo">Operaciones</p>
+        }
+
+        @if (puedeRegistrarMercancia()) {
+          <a class="menu-item" href="#acciones">
+            <span>⬡</span>
+            Mercancías
+          </a>
+        }
+
+        @if (puedeRevisarOAprobar()) {
+          <a class="menu-item" href="#acciones">
+            <span>↻</span>
+            Estados
+          </a>
+        }
+
+        @if (puedeConfirmarEntrega() || puedeAdministrar()) {
+          <a class="menu-item" href="#acciones">
+            <span>✓</span>
+            Entregas
+          </a>
+        }
+
+        @if (puedeConsultar()) {
+          <p class="menu-titulo">Consultas</p>
+
+          <a class="menu-item" href="#mercancias">
+            <span>◎</span>
+            Mercancías visibles
+          </a>
+
+          <a class="menu-item" href="#detalle">
+            <span>▤</span>
+            Historial
+          </a>
+        }
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="red-card">
+          <p class="sidebar-label">Red blockchain</p>
+
+          <p class="red-estado">
+            <span class="punto-verde"></span>
+            Sepolia Testnet
+          </p>
+        </div>
+
+        <div class="wallet-card">
+          <div class="wallet-avatar">◉</div>
+
+          <div class="wallet-info">
+            <p class="wallet-direccion" [title]="web3.account() || ''">
+              {{ abreviarWallet(web3.account()) }}
+            </p>
+            <p class="wallet-rol">{{ rolActual || 'Sin rol cargado' }}</p>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="contenido-principal">
+      <header class="topbar">
+        <div>
+          @if (rolActual === 'Ninguno') {
+            <h2>Wallet sin acceso asignado</h2>
+            <p>Esta cuenta no tiene un rol registrado dentro de AduanaChain.</p>
+          } @else {
+            <h2>¡Bienvenido, {{ rolActual }}!</h2>
+            <p>Gestiona y consulta las operaciones aduanales disponibles para tu rol.</p>
+          }
+        </div>
+
+        <div class="topbar-acciones">
+          <span class="conexion-activa">
+            <span class="punto-verde"></span>
+            Conectado
+          </span>
+
+          <button
+            type="button"
+            class="boton-desconectar"
+            (click)="desconectarWallet()"
+            [disabled]="iniciandoSesion"
+          >
+            Desconectar wallet
+          </button>
+
+          <button
+            type="button"
+            class="boton-secundario"
+            (click)="cargarDatosContrato()"
+            [disabled]="iniciandoSesion"
+          >
+            Actualizar datos
+          </button>
+        </div>
+      </header>
+
+      <section id="resumen" class="panel panel-resumen">
+        <div class="panel-encabezado">
+          <div>
+            <h3>Resumen del contrato</h3>
+            <p>Información actual de tu sesión Web3</p>
+          </div>
+        </div>
+
+        <div class="resumen-grid">
+          <article class="resumen-card resumen-wallet">
+            <div class="resumen-icono">◉</div>
+
+            <div class="resumen-contenido">
+              <span>Cuenta conectada</span>
+
+              <strong class="wallet-resumen-direccion" [title]="web3.account() || ''">
+                {{ abreviarWallet(web3.account()) }}
+              </strong>
+            </div>
+          </article>
+
+          <article class="resumen-card resumen-rol">
+            <div class="resumen-icono">♛</div>
+
+            <div class="resumen-contenido">
+              <span>Rol actual</span>
+              <strong>{{ rolActual || 'Sin cargar' }}</strong>
+            </div>
+          </article>
+
+          @if (puedeAdministrar() || rolActual === 'Autoridad') {
+            <article class="resumen-card resumen-total">
+              <div class="resumen-icono">⬡</div>
+
+              <div>
+                <span>Total mercancías</span>
+                <strong>{{ totalMercancias || '0' }}</strong>
+              </div>
+            </article>
+          }
+
+          <article class="resumen-card resumen-red">
+            <div class="resumen-icono">◈</div>
+
+            <div>
+              <span>Red conectada</span>
+              <strong>Sepolia</strong>
+            </div>
+          </article>
+        </div>
+
+        @if (puedeAdministrar()) {
+          <div class="dato-admin">
+            <span>Administrador del contrato:</span>
+            <strong>{{ administrador }}</strong>
+          </div>
+        }
+      </section>
+
+      @if (
+        puedeAdministrar() ||
+        puedeRegistrarMercancia() ||
+        puedeRevisarOAprobar() ||
+        puedeConfirmarEntrega()
+      ) {
+        <section id="acciones" class="panel panel-acciones">
+          <div class="panel-encabezado">
+            <div>
+              <h3>Acciones rápidas</h3>
+              <p>Selecciona una operación para desplegar su formulario.</p>
+            </div>
+          </div>
+
+          <div class="acciones-grid">
+            @if (puedeAdministrar()) {
+              <details class="accion-card accion-usuarios">
+                <summary>
+                  <span class="accion-icono">♙</span>
+
+                  <span class="accion-texto">
+                    <strong>Registrar usuario</strong>
+                    <small>Asignar rol a una wallet</small>
+                  </span>
+
+                  <span class="accion-flecha">→</span>
+                </summary>
+
+                <div class="formulario-accion">
+                  <h4>Administrar usuarios</h4>
+
+                  <p>Registra una wallet y asigna el rol que tendrá dentro de AduanaChain.</p>
+
+                  <label for="walletUsuario">Wallet del usuario</label>
+
+                  <input
+                    id="walletUsuario"
+                    type="text"
+                    placeholder="0x... dirección MetaMask"
+                    [(ngModel)]="walletUsuario"
+                  />
+
+                  <label for="rolUsuario">Rol a asignar</label>
+
+                  <select id="rolUsuario" [(ngModel)]="rolUsuario">
+                    <option [value]="2">Operador Logístico</option>
+                    <option [value]="3">Autoridad Aduanal</option>
+                    <option [value]="4">Agente Aduanal</option>
+                    <option [value]="5">Cliente Autorizado</option>
+                  </select>
+
+                  <div class="acciones-formulario">
+                    <button type="button" (click)="registrarUsuario()">Registrar usuario</button>
+
+                    <button type="button" class="boton-secundario" (click)="consultarRol()">
+                      Consultar rol
+                    </button>
+                  </div>
+
+                  @if (rolConsultado) {
+                    <div class="resultado-mini">
+                      <strong>Rol consultado:</strong>
+                      {{ rolConsultado }}
+                    </div>
+                  }
+                </div>
+              </details>
+            }
+
+            @if (puedeRegistrarMercancia()) {
+              <details class="accion-card accion-mercancia">
+                <summary>
+                  <span class="accion-icono">⬡</span>
+
+                  <span class="accion-texto">
+                    <strong>Registrar mercancía</strong>
+                    <small>Agregar nueva carga</small>
+                  </span>
+
+                  <span class="accion-flecha">→</span>
+                </summary>
+
+                <div class="formulario-accion">
+                  <h4>Registrar mercancía</h4>
+
+                  <p>Selecciona los datos básicos de la carga y asigna un Cliente Autorizado.</p>
+
+                  <label for="descripcion">Tipo de mercancía</label>
+
+                  <select id="descripcion" [(ngModel)]="descripcion">
+                    <option value="" disabled>Selecciona una opción</option>
+                    <option value="Electronicos">Electrónicos</option>
+                    <option value="Textiles">Textiles</option>
+                    <option value="Refacciones automotrices">Refacciones automotrices</option>
+                    <option value="Alimentos empaquetados">Alimentos empaquetados</option>
+                    <option value="Maquinaria">Maquinaria</option>
+                  </select>
+
+                  <label for="origen">País de origen</label>
+
+                  <select id="origen" [(ngModel)]="origen">
+                    <option value="" disabled>Selecciona una opción</option>
+                    <option value="Estados Unidos">Estados Unidos</option>
+                    <option value="China">China</option>
+                    <option value="Canada">Canadá</option>
+                    <option value="Japon">Japón</option>
+                    <option value="Alemania">Alemania</option>
+                  </select>
+
+                  <label for="destino">Destino aduanal en México</label>
+
+                  <select id="destino" [(ngModel)]="destino">
+                    <option value="" disabled>Selecciona una opción</option>
+                    <option value="Veracruz, Mexico">Veracruz, México</option>
+                    <option value="Nuevo Laredo, Mexico">Nuevo Laredo, México</option>
+                    <option value="Manzanillo, Mexico">Manzanillo, México</option>
+                    <option value="Tijuana, Mexico">Tijuana, México</option>
+                    <option value="Ciudad de Mexico, Mexico">Ciudad de México, México</option>
+                  </select>
+
+                  <label for="clienteAutorizado"> Wallet del Cliente Autorizado </label>
+
+                  <input
+                    id="clienteAutorizado"
+                    type="text"
+                    placeholder="0x... wallet registrada como Cliente Autorizado"
+                    [(ngModel)]="clienteAutorizado"
+                  />
+
+                  <p class="ayuda">
+                    Esta wallet debe estar registrada previamente como Cliente Autorizado.
+                  </p>
+
+                  <button type="button" (click)="registrarMercancia()">Registrar mercancía</button>
+                </div>
+              </details>
+            }
+
+            @if (puedeAdministrar()) {
+              <details class="accion-card accion-autorizacion">
+                <summary>
+                  <span class="accion-icono">◇</span>
+
+                  <span class="accion-texto">
+                    <strong>Autorizar wallet</strong>
+                    <small>Asignar agente o cliente</small>
+                  </span>
+
+                  <span class="accion-flecha">→</span>
+                </summary>
+
+                <div class="formulario-accion">
+                  <h4>Autorizar wallet para una mercancía</h4>
+
+                  <p>Permite agregar una wallet autorizada a una carga específica ya registrada.</p>
+
+                  <label for="idMercanciaAutorizar">ID de mercancía</label>
+
+                  <input
+                    id="idMercanciaAutorizar"
+                    type="number"
+                    placeholder="Ejemplo: 1"
+                    [(ngModel)]="idMercanciaAutorizar"
+                  />
+
+                  <label for="walletAutorizar">Wallet a autorizar</label>
+
+                  <input
+                    id="walletAutorizar"
+                    type="text"
+                    placeholder="0x... wallet de Agente o Cliente"
+                    [(ngModel)]="walletAutorizar"
+                  />
+
+                  <button type="button" (click)="autorizarUsuarioMercancia()">
+                    Autorizar wallet
+                  </button>
+                </div>
+              </details>
+            }
+
+            @if (puedeRevisarOAprobar()) {
+              <details class="accion-card accion-revision">
+                <summary>
+                  <span class="accion-icono">↻</span>
+
+                  <span class="accion-texto">
+                    <strong>Cambiar estado</strong>
+                    <small>Revisión o aprobación</small>
+                  </span>
+
+                  <span class="accion-flecha">→</span>
+                </summary>
+
+                <div class="formulario-accion">
+                  <h4>Revisión y aprobación</h4>
+
+                  <p>
+                    Flujo permitido:
+                    <strong>Registrada → En revisión → Aprobada</strong>
+                  </p>
+
+                  <label for="idEstado">ID de mercancía</label>
+
+                  <input
+                    id="idEstado"
+                    type="number"
+                    placeholder="Selecciona un lote o ingresa su ID"
+                    [(ngModel)]="idEstado"
+                  />
+
+                  <label for="nuevoEstado">Nuevo estado</label>
+
+                  <select id="nuevoEstado" [(ngModel)]="nuevoEstado">
+                    <option [value]="1">En revisión</option>
+                    <option [value]="2">Aprobada</option>
+                  </select>
+
+                  <button type="button" (click)="cambiarEstado()">Actualizar estado</button>
+                </div>
+              </details>
+            }
+
+            @if (puedeConfirmarEntrega() || puedeAdministrar()) {
+              <details class="accion-card accion-entrega">
+                <summary>
+                  <span class="accion-icono">✓</span>
+
+                  <span class="accion-texto">
+                    <strong>Confirmar entrega</strong>
+                    <small>Finalizar seguimiento</small>
+                  </span>
+
+                  <span class="accion-flecha">→</span>
+                </summary>
+
+                <div class="formulario-accion">
+                  <h4>Confirmar entrega final</h4>
+
+                  @if (puedeConfirmarEntrega()) {
+                    <p>
+                      Puedes confirmar la entrega de mercancías asignadas que ya se encuentren en
+                      estado <strong>Aprobada</strong>.
+                    </p>
+                  } @else {
+                    <p>
+                      Como Administrador, puedes ejecutar esta operación con fines de demostración.
+                    </p>
+                  }
+
+                  <label for="idEntrega">ID de mercancía aprobada</label>
+
+                  <input
+                    id="idEntrega"
+                    type="number"
+                    placeholder="Selecciona un lote o ingresa su ID"
+                    [(ngModel)]="idEntrega"
+                  />
+
+                  <button type="button" (click)="confirmarEntrega()">Confirmar entrega</button>
+                </div>
+              </details>
+            }
+          </div>
+        </section>
+      }
+
+      @if (puedeConsultar()) {
+        <section id="mercancias" class="panel panel-mercancias">
+          <div class="panel-encabezado encabezado-tabla">
+            <div>
+              <h3>Mercancías disponibles</h3>
+
+              @if (
+                rolActual === 'Administrador' ||
+                rolActual === 'Operador' ||
+                rolActual === 'Autoridad'
+              ) {
+                <p>Vista general según tu rol operativo.</p>
+              } @else {
+                <p>Mercancías asignadas o autorizadas para tu wallet.</p>
+              }
+            </div>
+
+            <button type="button" class="boton-secundario" (click)="cargarMercanciasVisibles()">
+              Actualizar lista ↻
+            </button>
+          </div>
+
+          @if (cargandoMercancias) {
+            <div class="estado-cargando">Cargando mercancías autorizadas...</div>
+          }
+
+          @if (!cargandoMercancias && listaMercanciasCargada && mercanciasVisibles.length === 0) {
+            <div class="estado-vacio-tabla">
+              <p>No hay mercancías disponibles para esta wallet.</p>
+            </div>
+          }
+
+          @if (!cargandoMercancias && mercanciasVisibles.length > 0) {
+            <div class="tabla-contenedor">
+              <table class="tabla-mercancias">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tipo de mercancía</th>
+                    <th>Origen</th>
+                    <th>Destino</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (lote of mercanciasVisibles; track lote.id) {
+                    <tr>
+                      <td>{{ lote.id }}</td>
+                      <td>{{ lote.tipoMercancia }}</td>
+                      <td>{{ lote.origen }}</td>
+                      <td>{{ lote.destinoAduanal }}</td>
+
+                      <td>
+                        <span
+                          class="estado-badge"
+                          [class.estado-registrada]="lote.estado === 'Registrada'"
+                          [class.estado-revision]="lote.estado === 'En revisión'"
+                          [class.estado-aprobada]="lote.estado === 'Aprobada'"
+                          [class.estado-entregada]="lote.estado === 'Entregada'"
+                        >
+                          {{ lote.estado }}
+                        </span>
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          class="boton-tabla"
+                          (click)="seleccionarMercancia(lote.id)"
+                        >
+                          Ver detalle
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="tabla-total">
+              Total visible: {{ mercanciasVisibles.length }} mercancía(s)
+            </div>
+          }
+        </section>
+      }
+
+      @if (mensaje) {
+        <section class="mensaje-sistema">
+          <span>ⓘ</span>
+          <p>{{ mensaje }}</p>
+        </section>
+      }
+    </main>
+
+    <aside id="detalle" class="panel-derecho">
+      @if (puedeConsultar()) {
+        <section class="panel panel-consulta">
+          <div class="panel-encabezado">
+            <div>
+              <h3>Detalle de mercancía</h3>
+              <p>Consulta un lote específico</p>
+            </div>
+
+            @if (mercancia) {
+              <span class="id-badge">ID: {{ mercancia.id }}</span>
+            }
+          </div>
+
+          <label for="idConsulta">ID de mercancía</label>
+
+          <div class="consulta-linea">
+            <input
+              id="idConsulta"
+              type="number"
+              placeholder="Ingresa ID"
+              [(ngModel)]="idConsulta"
+            />
+
+            <button type="button" (click)="consultarMercancia()">Ver</button>
+          </div>
+
+          <button
+            type="button"
+            class="boton-historial"
+            (click)="consultarHistorial()"
+            [disabled]="cargandoHistorial"
+          >
+            {{ cargandoHistorial ? 'Cargando historial...' : 'Consultar historial verificable' }}
+          </button>
+
+          @if (mercancia) {
+            <div class="detalle-mercancia">
+              <h4>{{ mercancia.tipoMercancia }}</h4>
+
+              <div class="detalle-grid">
+                <p>
+                  <span>Origen</span>
+                  <strong>{{ mercancia.origen }}</strong>
+                </p>
+
+                <p>
+                  <span>Destino aduanal</span>
+                  <strong>{{ mercancia.destinoAduanal }}</strong>
+                </p>
+
+                <p>
+                  <span>Estado actual</span>
+
+                  <strong>
+                    <span
+                      class="estado-badge"
+                      [class.estado-registrada]="mercancia.estado === 'Registrada'"
+                      [class.estado-revision]="mercancia.estado === 'En revisión'"
+                      [class.estado-aprobada]="mercancia.estado === 'Aprobada'"
+                      [class.estado-entregada]="mercancia.estado === 'Entregada'"
+                    >
+                      {{ mercancia.estado }}
+                    </span>
+                  </strong>
+                </p>
+
+                @if (
+                  rolActual === 'Administrador' ||
+                  rolActual === 'Operador' ||
+                  rolActual === 'Autoridad'
+                ) {
+                  <p>
+                    <span>Cliente autorizado</span>
+                    <strong class="direccion">
+                      {{ mercancia.clienteAutorizado }}
+                    </strong>
+                  </p>
+                }
+
+                <p>
+                  <span>Registrado por</span>
+                  <strong class="direccion">
+                    {{ mercancia.registradoPor }}
+                  </strong>
+                </p>
+
+                <p>
+                  <span>Fecha de registro</span>
+                  <strong>{{ mercancia.fechaRegistro }}</strong>
+                </p>
+              </div>
+            </div>
+          } @else {
+            <div class="detalle-vacio">
+              <span>⬡</span>
+              <p>Selecciona una mercancía de la tabla para ver su información.</p>
+            </div>
+          }
+        </section>
+
+        <section class="panel panel-historial">
+          <div class="panel-encabezado">
+            <div>
+              <h3>Historial verificable</h3>
+              <p>Movimientos registrados en Sepolia</p>
+            </div>
+          </div>
+
+          @if (historial.length > 0) {
+            <div class="timeline">
+              @for (mov of historial; track mov.fecha; let i = $index) {
+                <article class="timeline-item">
+                  <div class="timeline-punto" [class.timeline-inicial]="i === 0">
+                    {{ i === 0 ? '+' : '↻' }}
+                  </div>
+
+                  <div class="timeline-card">
+                    @if (
+                      i === 0 &&
+                      mov.estadoAnterior === 'Registrada' &&
+                      mov.estadoNuevo === 'Registrada'
+                    ) {
+                      <h4>Mercancía registrada</h4>
+
+                      <span class="estado-badge estado-registrada"> Registrada </span>
+                    } @else {
+                      <h4>{{ mov.estadoAnterior }} → {{ mov.estadoNuevo }}</h4>
+
+                      <span
+                        class="estado-badge"
+                        [class.estado-revision]="mov.estadoNuevo === 'En revisión'"
+                        [class.estado-aprobada]="mov.estadoNuevo === 'Aprobada'"
+                        [class.estado-entregada]="mov.estadoNuevo === 'Entregada'"
+                      >
+                        {{ mov.estadoNuevo }}
+                      </span>
+                    }
+
+                    <p class="timeline-wallet">
+                      <span>Realizado por:</span>
+                      {{ mov.realizadoPor }}
+                    </p>
+
+                    <p class="timeline-fecha">{{ mov.fecha }}</p>
+
+                    @if (comprobantesHistorial[i]) {
+                      <a
+                        class="enlace-sepolia"
+                        [href]="comprobantesHistorial[i].url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Ver en Sepolia ↗
+                      </a>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="detalle-vacio historial-vacio">
+              <span>◷</span>
+              <p>Consulta una mercancía para visualizar su historial blockchain.</p>
+            </div>
+          }
+        </section>
+      }
+
+      @if (rolActual === 'Ninguno') {
+        <section class="panel acceso-denegado">
+          <h3>Acceso no autorizado</h3>
+
+          <p>
+            Tu wallet no tiene un rol asignado dentro de AduanaChain. Contacta al Administrador para
+            solicitar acceso.
+          </p>
+        </section>
+      }
+    </aside>
+
+    <!-- ===================================================== -->
+    <!-- MODAL DE DESCONEXIÓN -->
+    <!-- ===================================================== -->
+    @if (modalDesconexionVisible) {
+      <div class="modal-sesion-overlay">
+        <section
+          class="modal-sesion"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tituloDesconexion"
+        >
+          @if (estadoDesconexion === 'procesando') {
+            <div class="modal-sesion-icono procesando">
+              <span class="spinner-desconexion"></span>
+            </div>
+
+            <h3 id="tituloDesconexion">Desconectando wallet</h3>
+
+            <p>{{ mensajeDesconexion }}</p>
+
+            <div class="redirigiendo">
+              <span></span>
+              <span></span>
+              <span></span>
+              Preparando el hub de acceso
+            </div>
+          } @else if (estadoDesconexion === 'completada') {
+            <div class="modal-sesion-icono completada">✓</div>
+
+            <h3 id="tituloDesconexion">Wallet desconectada</h3>
+
+            <p>{{ mensajeDesconexion }}</p>
+
+            <div class="redirigiendo">
+              <span></span>
+              <span></span>
+              <span></span>
+              Redirigiéndote al hub de acceso
+            </div>
+          } @else {
+            <div class="modal-sesion-icono error">!</div>
+
+            <h3 id="tituloDesconexion">No fue posible desconectar</h3>
+
+            <p>{{ mensajeDesconexion }}</p>
+
+            <button type="button" class="boton-modal-cerrar" (click)="cerrarModalDesconexion()">
+              Volver al dashboard
+            </button>
+          }
+        </section>
+      </div>
+    }
+
+    <!-- ===================================================== -->
+    <!-- TOAST BLOCKCHAIN -->
+    <!-- ===================================================== -->
+    @if (toastVisible) {
+      <div class="toast-overlay">
+        <div class="toast-comprobante">
+          <div class="toast-header">
+            <strong>Comprobante blockchain</strong>
+
+            <button
+              class="toast-cerrar"
+              type="button"
+              (click)="cerrarToast()"
+              aria-label="Cerrar comprobante"
+            >
+              ✕
+            </button>
+          </div>
+
+          <p>{{ toastMensaje }}</p>
+
+          <a class="boton-enlace" [href]="toastUrl" target="_blank" rel="noopener noreferrer">
+            Ver en Sepolia
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+}
