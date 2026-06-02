@@ -847,13 +847,9 @@
               }
             </div>
 
-            <button
-              type="button"
-              class="boton-secundario"
-              (click)="cargarMercanciasVisibles()"
-            >
-              Actualizar lista ↻
-            </button>
+            <span class="tabla-sincronizada">
+              Actualizada desde el panorama operativo
+            </span>
           </div>
 
           @if (cargandoMercancias) {
@@ -1083,7 +1079,7 @@
               }
             </div>
           } @else if (historial.length > 0) {
-            <div class="timeline">
+            <div class="timeline timeline-compacta">
               @for (mov of historial; track mov.hash) {
                 <article class="timeline-item">
                   <div
@@ -1171,6 +1167,97 @@
         </section>
       }
     </aside>
+    <!-- ===================================================== -->
+    <!-- MODAL DE OPERACIÓN BLOCKCHAIN -->
+    <!-- ===================================================== -->
+    @if (modalTransaccionVisible) {
+      <div class="modal-sesion-overlay modal-transaccion-overlay">
+        <section
+          class="modal-sesion modal-transaccion"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="tituloTransaccion"
+        >
+          @if (estadoTransaccion === 'esperando') {
+            <div class="modal-sesion-icono procesando">
+              <span class="spinner-desconexion"></span>
+            </div>
+
+            <span class="modal-red-etiqueta">SEPOLIA TESTNET</span>
+
+            <h3 id="tituloTransaccion">{{ tituloTransaccion }}</h3>
+
+            <p>{{ mensajeTransaccion }}</p>
+
+            @if (referenciaTransaccion) {
+              <div class="modal-referencia">
+                {{ referenciaTransaccion }}
+              </div>
+            }
+
+            <div class="estado-red">
+              <span></span>
+              <span></span>
+              <span></span>
+              Esperando confirmación de MetaMask y Sepolia
+            </div>
+          } @else if (estadoTransaccion === 'confirmada') {
+            <div class="modal-sesion-icono completada">✓</div>
+
+            <span class="modal-red-etiqueta confirmada">
+              REGISTRO VERIFICABLE
+            </span>
+
+            <h3 id="tituloTransaccion">{{ tituloTransaccion }}</h3>
+
+            <p>{{ mensajeTransaccion }}</p>
+
+            @if (referenciaTransaccion) {
+              <div class="modal-referencia">
+                {{ referenciaTransaccion }}
+              </div>
+            }
+
+            <div class="modal-acciones">
+              <a
+                class="boton-enlace"
+                [href]="urlTransaccion"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Ver comprobante en Sepolia ↗
+              </a>
+
+              <button
+                type="button"
+                class="boton-modal-secundario"
+                (click)="cerrarModalTransaccion()"
+              >
+                Continuar
+              </button>
+            </div>
+          } @else {
+            <div class="modal-sesion-icono error">!</div>
+
+            <span class="modal-red-etiqueta error">
+              OPERACIÓN CANCELADA
+            </span>
+
+            <h3 id="tituloTransaccion">{{ tituloTransaccion }}</h3>
+
+            <p>{{ mensajeTransaccion }}</p>
+
+            <button
+              type="button"
+              class="boton-modal-cerrar"
+              (click)="cerrarModalTransaccion()"
+            >
+              Volver al dashboard
+            </button>
+          }
+        </section>
+      </div>
+    }
 
     <!-- ===================================================== -->
     <!-- MODAL DE DESCONEXIÓN -->

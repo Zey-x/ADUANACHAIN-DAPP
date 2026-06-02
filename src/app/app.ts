@@ -1,10 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  OnDestroy,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Web3Service, ComprobanteMovimiento } from './services/web3';
 
@@ -106,9 +100,19 @@ export class App implements OnDestroy {
   // =========================================================
 
   public modalDesconexionVisible = false;
-  public estadoDesconexion: 'procesando' | 'completada' | 'error' =
-    'procesando';
+  public estadoDesconexion: 'procesando' | 'completada' | 'error' = 'procesando';
   public mensajeDesconexion = '';
+
+  // =========================================================
+  // MODAL DE TRANSACCIONES BLOCKCHAIN
+  // =========================================================
+
+  public modalTransaccionVisible = false;
+  public estadoTransaccion: 'esperando' | 'confirmada' | 'error' = 'esperando';
+  public tituloTransaccion = '';
+  public mensajeTransaccion = '';
+  public referenciaTransaccion = '';
+  public urlTransaccion = '';
 
   // =========================================================
   // LIMPIEZA DEL COMPONENTE
@@ -211,11 +215,9 @@ export class App implements OnDestroy {
       this.estadoDesconexion = 'error';
 
       if (error?.code === 4001) {
-        this.mensajeDesconexion =
-          'La desconexión fue cancelada. Tu wallet continúa conectada.';
+        this.mensajeDesconexion = 'La desconexión fue cancelada. Tu wallet continúa conectada.';
       } else {
-        this.mensajeDesconexion =
-          `No fue posible desconectar la wallet: ${this.obtenerMensajeError(error)}`;
+        this.mensajeDesconexion = `No fue posible desconectar la wallet: ${this.obtenerMensajeError(error)}`;
       }
 
       this.actualizarVista();
@@ -229,6 +231,54 @@ export class App implements OnDestroy {
 
     this.modalDesconexionVisible = false;
     this.mensajeDesconexion = '';
+    this.actualizarVista();
+  }
+
+  // =========================================================
+  // MODAL DE OPERACIONES EN BLOCKCHAIN
+  // =========================================================
+
+  private abrirModalTransaccion(titulo: string, mensaje: string, referencia: string = ''): void {
+    this.modalTransaccionVisible = true;
+    this.estadoTransaccion = 'esperando';
+    this.tituloTransaccion = titulo;
+    this.mensajeTransaccion = mensaje;
+    this.referenciaTransaccion = referencia;
+    this.urlTransaccion = '';
+    this.actualizarVista();
+  }
+
+  private confirmarModalTransaccion(titulo: string, mensaje: string, hash: string): void {
+    this.estadoTransaccion = 'confirmada';
+    this.tituloTransaccion = titulo;
+    this.mensajeTransaccion = mensaje;
+    this.urlTransaccion = this.web3.obtenerUrlTransaccion(hash);
+    this.actualizarVista();
+  }
+
+  private marcarErrorTransaccion(mensaje: string, error: any): void {
+    if (!this.modalTransaccionVisible) {
+      return;
+    }
+
+    this.estadoTransaccion = 'error';
+    this.tituloTransaccion = 'Operación no completada';
+    this.mensajeTransaccion = `${mensaje} ${this.obtenerMensajeError(error)}`;
+    this.urlTransaccion = '';
+    this.actualizarVista();
+  }
+
+  public cerrarModalTransaccion(): void {
+    if (this.estadoTransaccion === 'esperando') {
+      return;
+    }
+
+    this.modalTransaccionVisible = false;
+    this.estadoTransaccion = 'esperando';
+    this.tituloTransaccion = '';
+    this.mensajeTransaccion = '';
+    this.referenciaTransaccion = '';
+    this.urlTransaccion = '';
     this.actualizarVista();
   }
 
@@ -269,8 +319,7 @@ export class App implements OnDestroy {
       this.sesionLista = true;
 
       if (this.rolActual === 'Ninguno') {
-        this.mensaje =
-          'Tu wallet está conectada, pero no tiene un rol asignado en AduanaChain.';
+        this.mensaje = 'Tu wallet está conectada, pero no tiene un rol asignado en AduanaChain.';
       } else {
         const mensajeAcceso = desdeInicio
           ? `Acceso cargado correctamente. Rol actual: ${this.rolActual}.`
@@ -293,8 +342,7 @@ export class App implements OnDestroy {
       console.error('Error al cargar datos del contrato:', error);
 
       this.sesionLista = false;
-      this.mensaje =
-        `Error al cargar datos: ${this.obtenerMensajeError(error)}`;
+      this.mensaje = `Error al cargar datos: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.iniciandoSesion = false;
       this.actualizarVista();
@@ -324,8 +372,7 @@ export class App implements OnDestroy {
     } catch (error: any) {
       console.error('Error al consultar rol:', error);
 
-      this.mensaje =
-        `Error al consultar rol: ${this.obtenerMensajeError(error)}`;
+      this.mensaje = `Error al consultar rol: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.actualizarVista();
     }
@@ -345,17 +392,21 @@ export class App implements OnDestroy {
         return;
       }
 
+      this.abrirModalTransaccion(
+        'Registrando usuario',
+        'Autoriza la operación en MetaMask. AduanaChain registrará el rol asignado en la red Sepolia.',
+        `Wallet: ${this.abreviarWallet(wallet)}`,
+      );
+
       this.mensaje = 'Confirma el registro de usuario en MetaMask...';
       this.actualizarVista();
 
-      const hash = await this.web3.registrarUsuario(
-        wallet,
-        Number(this.rolUsuario)
-      );
+      const hash = await this.web3.registrarUsuario(wallet, Number(this.rolUsuario));
 
-      this.guardarComprobanteOperacion(
+      this.confirmarModalTransaccion(
+        'Usuario registrado',
+        'La identidad operativa quedó registrada correctamente en blockchain.',
         hash,
-        'Usuario registrado correctamente en blockchain.'
       );
 
       this.rolConsultado = await this.web3.obtenerRol(wallet);
@@ -366,8 +417,9 @@ export class App implements OnDestroy {
     } catch (error: any) {
       console.error('Error al registrar usuario:', error);
 
-      this.mensaje =
-        `Error al registrar usuario: ${this.obtenerMensajeError(error)}`;
+      this.marcarErrorTransaccion('No fue posible registrar el usuario.', error);
+
+      this.mensaje = `Error al registrar usuario: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.actualizarVista();
     }
@@ -380,8 +432,7 @@ export class App implements OnDestroy {
   async registrarMercancia(): Promise<void> {
     try {
       if (!this.descripcion || !this.origen || !this.destino) {
-        this.mensaje =
-          'Selecciona el tipo de mercancía, el origen y el destino aduanal.';
+        this.mensaje = 'Selecciona el tipo de mercancía, el origen y el destino aduanal.';
         return;
       }
 
@@ -393,10 +444,15 @@ export class App implements OnDestroy {
       }
 
       if (!this.esWalletValida(cliente)) {
-        this.mensaje =
-          'La wallet del Cliente Autorizado no tiene un formato válido.';
+        this.mensaje = 'La wallet del Cliente Autorizado no tiene un formato válido.';
         return;
       }
+
+      this.abrirModalTransaccion(
+        'Registrando mercancía',
+        'Autoriza la operación en MetaMask. La carga será incorporada a la trazabilidad verificable en Sepolia.',
+        `${this.descripcion} · ${this.origen} → ${this.destino}`,
+      );
 
       this.mensaje = 'Confirma el registro de mercancía en MetaMask...';
       this.actualizarVista();
@@ -405,12 +461,13 @@ export class App implements OnDestroy {
         this.descripcion,
         this.origen,
         this.destino,
-        cliente
+        cliente,
       );
 
-      this.guardarComprobanteOperacion(
+      this.confirmarModalTransaccion(
+        'Mercancía registrada',
+        'La carga fue registrada correctamente y ya cuenta con evidencia blockchain.',
         hash,
-        'Mercancía registrada correctamente en blockchain.'
       );
 
       this.descripcion = '';
@@ -421,15 +478,16 @@ export class App implements OnDestroy {
       this.totalMercancias = await this.web3.obtenerTotalMercancias();
 
       if (this.listaMercanciasCargada) {
-        await this.cargarMercanciasVisibles();
+        await this.cargarMercanciasVisibles(false);
       }
 
       this.mensaje = 'Mercancía registrada correctamente.';
     } catch (error: any) {
       console.error('Error al registrar mercancía:', error);
 
-      this.mensaje =
-        `Error al registrar mercancía: ${this.obtenerMensajeError(error)}`;
+      this.marcarErrorTransaccion('No fue posible registrar la mercancía.', error);
+
+      this.mensaje = `Error al registrar mercancía: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.actualizarVista();
     }
@@ -441,10 +499,7 @@ export class App implements OnDestroy {
 
   async autorizarUsuarioMercancia(): Promise<void> {
     try {
-      if (
-        this.idMercanciaAutorizar === null ||
-        this.idMercanciaAutorizar <= 0
-      ) {
+      if (this.idMercanciaAutorizar === null || this.idMercanciaAutorizar <= 0) {
         this.mensaje = 'Ingresa un ID de mercancía válido.';
         return;
       }
@@ -463,21 +518,29 @@ export class App implements OnDestroy {
 
       const idAutorizado = Number(this.idMercanciaAutorizar);
 
+      this.abrirModalTransaccion(
+        'Autorizando participante',
+        'Autoriza la operación en MetaMask. La wallet quedará vinculada a esta mercancía en Sepolia.',
+        `Mercancía #${idAutorizado} · ${this.abreviarWallet(wallet)}`,
+      );
+
       this.mensaje = 'Confirma la autorización en MetaMask...';
       this.actualizarVista();
 
-      const hash = await this.web3.autorizarUsuarioMercancia(
-        idAutorizado,
-        wallet
-      );
+      const hash = await this.web3.autorizarUsuarioMercancia(idAutorizado, wallet);
 
-      this.guardarComprobanteOperacion(
+      this.confirmarModalTransaccion(
+        'Wallet autorizada',
+        `El participante quedó autorizado correctamente para la mercancía #${idAutorizado}.`,
         hash,
-        'Wallet autorizada correctamente para la mercancía.'
       );
 
       if (this.idConsulta === idAutorizado) {
         await this.consultarHistorial();
+      }
+
+      if (this.listaMercanciasCargada) {
+        await this.cargarMercanciasVisibles(false);
       }
 
       this.idMercanciaAutorizar = null;
@@ -486,8 +549,9 @@ export class App implements OnDestroy {
     } catch (error: any) {
       console.error('Error al autorizar wallet:', error);
 
-      this.mensaje =
-        `Error al autorizar wallet: ${this.obtenerMensajeError(error)}`;
+      this.marcarErrorTransaccion('No fue posible autorizar la wallet.', error);
+
+      this.mensaje = `Error al autorizar wallet: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.actualizarVista();
     }
@@ -504,32 +568,35 @@ export class App implements OnDestroy {
         return;
       }
 
-      const estadoSeleccionado = this.obtenerNombreEstadoSeleccionado(
-        Number(this.nuevoEstado)
+      const idActualizado = Number(this.idEstado);
+      const estadoSeleccionado = this.obtenerNombreEstadoSeleccionado(Number(this.nuevoEstado));
+
+      this.abrirModalTransaccion(
+        'Actualizando estado aduanal',
+        'Autoriza la operación en MetaMask. El nuevo estado quedará registrado de forma verificable en Sepolia.',
+        `Mercancía #${idActualizado} · Nuevo estado: ${estadoSeleccionado}`,
       );
 
       this.mensaje = 'Confirma el cambio de estado en MetaMask...';
       this.actualizarVista();
 
-      const hash = await this.web3.cambiarEstado(
-        Number(this.idEstado),
-        Number(this.nuevoEstado)
-      );
+      const hash = await this.web3.cambiarEstado(idActualizado, Number(this.nuevoEstado));
 
-      this.guardarComprobanteOperacion(
+      this.confirmarModalTransaccion(
+        'Estado actualizado',
+        `La mercancía #${idActualizado} ahora se encuentra en estado ${estadoSeleccionado}.`,
         hash,
-        `Mercancía actualizada al estado "${estadoSeleccionado}" en blockchain.`
       );
 
-      await this.refrescarMercanciaActual(Number(this.idEstado));
+      await this.refrescarMercanciaActual(idActualizado);
 
-      this.mensaje =
-        `Estado actualizado correctamente: ${estadoSeleccionado}.`;
+      this.mensaje = `Estado actualizado correctamente: ${estadoSeleccionado}.`;
     } catch (error: any) {
       console.error('Error al cambiar estado:', error);
 
-      this.mensaje =
-        `Error al cambiar estado: ${this.obtenerMensajeError(error)}`;
+      this.marcarErrorTransaccion('No fue posible actualizar el estado.', error);
+
+      this.mensaje = `Error al cambiar estado: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.actualizarVista();
     }
@@ -546,27 +613,34 @@ export class App implements OnDestroy {
         return;
       }
 
+      const idEntregado = Number(this.idEntrega);
+
+      this.abrirModalTransaccion(
+        'Confirmando entrega final',
+        'Autoriza la operación en MetaMask. El cierre del seguimiento será registrado en la red Sepolia.',
+        `Mercancía #${idEntregado} · Aprobada → Entregada`,
+      );
+
       this.mensaje = 'Confirma la entrega en MetaMask...';
       this.actualizarVista();
 
-      const hash = await this.web3.cambiarEstado(
-        Number(this.idEntrega),
-        3
-      );
+      const hash = await this.web3.cambiarEstado(idEntregado, 3);
 
-      this.guardarComprobanteOperacion(
+      this.confirmarModalTransaccion(
+        'Entrega confirmada',
+        `El seguimiento de la mercancía #${idEntregado} fue finalizado correctamente en blockchain.`,
         hash,
-        'Entrega final confirmada correctamente.'
       );
 
-      await this.refrescarMercanciaActual(Number(this.idEntrega));
+      await this.refrescarMercanciaActual(idEntregado);
 
       this.mensaje = 'Entrega confirmada correctamente.';
     } catch (error: any) {
       console.error('Error al confirmar entrega:', error);
 
-      this.mensaje =
-        `Error al confirmar entrega: ${this.obtenerMensajeError(error)}`;
+      this.marcarErrorTransaccion('No fue posible confirmar la entrega.', error);
+
+      this.mensaje = `Error al confirmar entrega: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.actualizarVista();
     }
@@ -583,17 +657,14 @@ export class App implements OnDestroy {
         return;
       }
 
-      this.mercancia = await this.web3.consultarMercancia(
-        Number(this.idConsulta)
-      );
+      this.mercancia = await this.web3.consultarMercancia(Number(this.idConsulta));
 
       this.mensaje = 'Mercancía consultada correctamente.';
     } catch (error: any) {
       console.error('Error al consultar mercancía:', error);
 
       this.mercancia = null;
-      this.mensaje =
-        `Error al consultar mercancía: ${this.obtenerMensajeError(error)}`;
+      this.mensaje = `Error al consultar mercancía: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.actualizarVista();
     }
@@ -618,9 +689,7 @@ export class App implements OnDestroy {
       this.mensaje = 'Consultando historial y comprobantes...';
       this.actualizarVista();
 
-      this.historial = await this.web3.consultarComprobantesHistorial(
-        Number(this.idConsulta)
-      );
+      this.historial = await this.web3.consultarComprobantesHistorial(Number(this.idConsulta));
 
       if (this.historial.length > 0) {
         this.mensaje = 'Historial y comprobantes consultados correctamente.';
@@ -631,8 +700,7 @@ export class App implements OnDestroy {
       console.error('Error al consultar historial:', error);
 
       this.historial = [];
-      this.mensaje =
-        `Error al consultar historial: ${this.obtenerMensajeError(error)}`;
+      this.mensaje = `Error al consultar historial: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.cargandoHistorial = false;
       this.actualizarVista();
@@ -647,8 +715,7 @@ export class App implements OnDestroy {
     const cuenta = this.web3.account();
 
     if (!cuenta || !this.rolActual) {
-      this.mensaje =
-        'Primero conecta MetaMask y carga los datos del contrato.';
+      this.mensaje = 'Primero conecta MetaMask y carga los datos del contrato.';
       this.actualizarVista();
       return;
     }
@@ -681,46 +748,34 @@ export class App implements OnDestroy {
         this.rolActual === 'Operador' ||
         this.rolActual === 'Autoridad';
 
-      const ids = Array.from(
-        { length: total },
-        (_, indice) => indice + 1
-      );
+      const ids = Array.from({ length: total }, (_, indice) => indice + 1);
 
       const consultaLotes = async (): Promise<any[]> => {
         if (puedeVerTodas) {
-          return await Promise.all(
-            ids.map((id) => this.web3.consultarMercancia(id))
-          );
+          return await Promise.all(ids.map((id) => this.web3.consultarMercancia(id)));
         }
 
         const accesos = await Promise.all(
           ids.map(async (id) => ({
             id,
             autorizado: await this.web3.estaAutorizado(id, cuenta),
-          }))
+          })),
         );
 
         const idsAutorizados = accesos
           .filter((registro) => registro.autorizado)
           .map((registro) => registro.id);
 
-        return await Promise.all(
-          idsAutorizados.map((id) => this.web3.consultarMercancia(id))
-        );
+        return await Promise.all(idsAutorizados.map((id) => this.web3.consultarMercancia(id)));
       };
 
       const limiteEspera = new Promise<never>((_, reject) => {
         setTimeout(() => {
-          reject(
-            new Error('La consulta tardó demasiado. Intenta nuevamente.')
-          );
+          reject(new Error('La consulta tardó demasiado. Intenta nuevamente.'));
         }, 15000);
       });
 
-      this.mercanciasVisibles = await Promise.race([
-        consultaLotes(),
-        limiteEspera,
-      ]);
+      this.mercanciasVisibles = await Promise.race([consultaLotes(), limiteEspera]);
 
       this.listaMercanciasCargada = true;
 
@@ -728,16 +783,14 @@ export class App implements OnDestroy {
         if (this.mercanciasVisibles.length === 0) {
           this.mensaje = 'No tienes mercancías autorizadas para consultar.';
         } else {
-          this.mensaje =
-            `Se encontraron ${this.mercanciasVisibles.length} mercancía(s) visible(s).`;
+          this.mensaje = `Se encontraron ${this.mercanciasVisibles.length} mercancía(s) visible(s).`;
         }
       }
     } catch (error: any) {
       console.error('Error cargando mercancías visibles:', error);
 
       this.listaMercanciasCargada = true;
-      this.mensaje =
-        `Error al cargar mercancías: ${this.obtenerMensajeError(error)}`;
+      this.mensaje = `Error al cargar mercancías: ${this.obtenerMensajeError(error)}`;
     } finally {
       this.cargandoMercancias = false;
       this.actualizarVista();
@@ -779,9 +832,7 @@ export class App implements OnDestroy {
   // =========================================================
 
   public contarPorEstado(estado: string): number {
-    return this.mercanciasVisibles.filter(
-      (lote) => lote.estado === estado
-    ).length;
+    return this.mercanciasVisibles.filter((lote) => lote.estado === estado).length;
   }
 
   public obtenerTituloBandeja(): string {
@@ -798,14 +849,10 @@ export class App implements OnDestroy {
 
   public obtenerTextoBandeja(): string {
     const textos: Record<string, string> = {
-      Administrador:
-        'Revisa el avance general y atiende las mercancías que continúan en proceso.',
-      Operador:
-        'Registra nuevas cargas y consulta el avance de cada operación aduanal.',
-      Autoridad:
-        'Atiende las mercancías que requieren iniciar revisión o ser aprobadas.',
-      Agente:
-        'Confirma la entrega únicamente de mercancías aprobadas y asignadas a tu wallet.',
+      Administrador: 'Revisa el avance general y atiende las mercancías que continúan en proceso.',
+      Operador: 'Registra nuevas cargas y consulta el avance de cada operación aduanal.',
+      Autoridad: 'Atiende las mercancías que requieren iniciar revisión o ser aprobadas.',
+      Agente: 'Confirma la entrega únicamente de mercancías aprobadas y asignadas a tu wallet.',
       'Cliente Autorizado':
         'Consulta el avance y la evidencia blockchain de tus mercancías autorizadas.',
     };
@@ -869,9 +916,7 @@ export class App implements OnDestroy {
 
   public obtenerAccionTarea(lote: any): string {
     if (this.rolActual === 'Autoridad') {
-      return lote.estado === 'Registrada'
-        ? 'Iniciar revisión'
-        : 'Revisar aprobación';
+      return lote.estado === 'Registrada' ? 'Iniciar revisión' : 'Revisar aprobación';
     }
 
     if (this.rolActual === 'Agente') {
@@ -906,17 +951,11 @@ export class App implements OnDestroy {
   }
 
   puedeRegistrarMercancia(): boolean {
-    return (
-      this.rolActual === 'Administrador' ||
-      this.rolActual === 'Operador'
-    );
+    return this.rolActual === 'Administrador' || this.rolActual === 'Operador';
   }
 
   puedeRevisarOAprobar(): boolean {
-    return (
-      this.rolActual === 'Administrador' ||
-      this.rolActual === 'Autoridad'
-    );
+    return this.rolActual === 'Administrador' || this.rolActual === 'Autoridad';
   }
 
   puedeConfirmarEntrega(): boolean {
@@ -937,17 +976,11 @@ export class App implements OnDestroy {
   // TOAST DE COMPROBANTE BLOCKCHAIN
   // =========================================================
 
-  private guardarComprobanteOperacion(
-    hash: string,
-    mensaje: string
-  ): void {
+  private guardarComprobanteOperacion(hash: string, mensaje: string): void {
     this.mostrarToastComprobante(mensaje, hash);
   }
 
-  private mostrarToastComprobante(
-    mensaje: string,
-    hash: string
-  ): void {
+  private mostrarToastComprobante(mensaje: string, hash: string): void {
     this.toastMensaje = mensaje;
     this.toastUrl = this.web3.obtenerUrlTransaccion(hash);
     this.toastVisible = true;
@@ -1016,6 +1049,13 @@ export class App implements OnDestroy {
     this.cargandoHistorial = false;
 
     this.cerrarToast();
+
+    this.modalTransaccionVisible = false;
+    this.estadoTransaccion = 'esperando';
+    this.tituloTransaccion = '';
+    this.mensajeTransaccion = '';
+    this.referenciaTransaccion = '';
+    this.urlTransaccion = '';
   }
 
   private obtenerNombreEstadoSeleccionado(estado: number): string {
@@ -1033,12 +1073,7 @@ export class App implements OnDestroy {
   }
 
   private obtenerMensajeError(error: any): string {
-    return (
-      error?.reason ||
-      error?.shortMessage ||
-      error?.message ||
-      'Error desconocido'
-    );
+    return error?.reason || error?.shortMessage || error?.message || 'Error desconocido';
   }
 
   public abreviarWallet(wallet: string | null): string {

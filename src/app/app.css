@@ -2486,3 +2486,196 @@ label {
     grid-column: 2;
   }
 }
+/* =========================================================
+   EXPERIENCIA BLOCKCHAIN V1.4 - PULIDO LOCAL
+   ========================================================= */
+
+.tabla-sincronizada {
+  align-self: center;
+  padding: 9px 12px;
+  border: 1px solid #e0e8f7;
+  border-radius: 999px;
+  background: #f7f9fe;
+  color: #647691;
+  font-size: 11px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   HISTORIAL COMPACTO
+   ========================================================= */
+
+.panel-historial {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 30px);
+}
+
+.panel-historial .timeline {
+  max-height: calc(100vh - 132px);
+  overflow-y: auto;
+  padding-right: 5px;
+  scrollbar-width: thin;
+  scrollbar-color: #d4e0f6 transparent;
+}
+
+.panel-historial .timeline::-webkit-scrollbar {
+  width: 5px;
+}
+
+.panel-historial .timeline::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #d4e0f6;
+}
+
+.timeline-compacta {
+  gap: 10px;
+}
+
+.timeline-compacta .timeline-card {
+  padding: 11px 12px;
+}
+
+.timeline-compacta .timeline-card h4 {
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.timeline-compacta .timeline-wallet {
+  margin: 5px 0;
+}
+
+.timeline-compacta .timeline-fecha {
+  margin: 6px 0 9px;
+}
+
+.timeline-compacta .enlace-sepolia {
+  padding: 6px 9px;
+  font-size: 11px;
+}
+
+.timeline-compacta .timeline-punto {
+  top: 12px;
+}
+
+/* =========================================================
+   MODAL DE TRANSACCIONES BLOCKCHAIN
+   ========================================================= */
+
+.modal-transaccion {
+  width: min(486px, 100%);
+  padding: 30px 30px 27px;
+}
+
+.modal-red-etiqueta {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: #edf3ff;
+  color: #2d64ea;
+  font-size: 10px;
+  font-weight: 760;
+  letter-spacing: 0.1em;
+}
+
+.modal-red-etiqueta.confirmada {
+  background: #e8faef;
+  color: #14864d;
+}
+
+.modal-red-etiqueta.error {
+  background: #fff2dc;
+  color: #a46600;
+}
+
+.modal-referencia {
+  max-width: 395px;
+  margin: 0 auto 19px;
+  padding: 11px 13px;
+  border: 1px solid #dfe8f8;
+  border-radius: 10px;
+  background: #f7f9fd;
+  color: #435471;
+  font-size: 12px;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.estado-red {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #3866d5;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.estado-red span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3971f0;
+  animation: pulsoPunto 1.1s infinite ease-in-out;
+}
+
+.estado-red span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.estado-red span:nth-child(3) {
+  margin-right: 8px;
+  animation-delay: 0.32s;
+}
+
+.modal-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 9px;
+}
+
+.modal-acciones .boton-enlace {
+  min-height: 44px;
+  align-items: center;
+  padding: 11px 15px;
+  border-radius: 10px;
+}
+
+.boton-modal-secundario {
+  min-height: 44px;
+  padding: 11px 17px;
+  border: 1px solid #d7e2f7;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #415776;
+  font-size: 13px;
+  font-weight: 680;
+  box-shadow: none;
+}
+
+.boton-modal-secundario:hover:not(:disabled) {
+  border-color: #c5d5f2;
+  background: #f5f8ff;
+  box-shadow: none;
+}
+
+@media (max-width: 1380px) {
+  .tabla-sincronizada {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .modal-acciones {
+    flex-direction: column;
+  }
+
+  .modal-acciones .boton-enlace,
+  .boton-modal-secundario {
+    width: 100%;
+    justify-content: center;
+  }
+}
