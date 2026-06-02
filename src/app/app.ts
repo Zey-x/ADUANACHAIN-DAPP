@@ -271,11 +271,23 @@ export class App implements OnDestroy {
       if (this.rolActual === 'Ninguno') {
         this.mensaje =
           'Tu wallet está conectada, pero no tiene un rol asignado en AduanaChain.';
-      } else if (desdeInicio) {
-        this.mensaje =
-          `Acceso cargado correctamente. Rol actual: ${this.rolActual}.`;
       } else {
-        this.mensaje = 'Datos del contrato actualizados correctamente.';
+        const mensajeAcceso = desdeInicio
+          ? `Acceso cargado correctamente. Rol actual: ${this.rolActual}.`
+          : 'Datos del contrato actualizados correctamente.';
+
+        this.mensaje = mensajeAcceso;
+        this.actualizarVista();
+
+        /*
+         * El Centro de Control Aduanal necesita los lotes visibles para calcular
+         * indicadores y tareas. Se cargan automáticamente sin exigir
+         * que el usuario presione el botón de actualizar lista.
+         */
+        if (this.puedeConsultar()) {
+          await this.cargarMercanciasVisibles(false);
+          this.mensaje = mensajeAcceso;
+        }
       }
     } catch (error: any) {
       console.error('Error al cargar datos del contrato:', error);
@@ -631,7 +643,7 @@ export class App implements OnDestroy {
   // LISTA DE MERCANCÍAS VISIBLES
   // =========================================================
 
-  async cargarMercanciasVisibles(): Promise<void> {
+  async cargarMercanciasVisibles(mostrarMensaje: boolean = true): Promise<void> {
     const cuenta = this.web3.account();
 
     if (!cuenta || !this.rolActual) {
@@ -644,7 +656,10 @@ export class App implements OnDestroy {
     this.cargandoMercancias = true;
     this.listaMercanciasCargada = false;
     this.mercanciasVisibles = [];
-    this.mensaje = '';
+
+    if (mostrarMensaje) {
+      this.mensaje = 'Actualizando mercancías visibles...';
+    }
 
     this.actualizarVista();
 
@@ -653,7 +668,11 @@ export class App implements OnDestroy {
 
       if (total === 0) {
         this.listaMercanciasCargada = true;
-        this.mensaje = 'No existen mercancías registradas.';
+
+        if (mostrarMensaje) {
+          this.mensaje = 'No existen mercancías registradas.';
+        }
+
         return;
       }
 
@@ -705,11 +724,13 @@ export class App implements OnDestroy {
 
       this.listaMercanciasCargada = true;
 
-      if (this.mercanciasVisibles.length === 0) {
-        this.mensaje = 'No tienes mercancías autorizadas para consultar.';
-      } else {
-        this.mensaje =
-          `Se encontraron ${this.mercanciasVisibles.length} mercancía(s) visible(s).`;
+      if (mostrarMensaje) {
+        if (this.mercanciasVisibles.length === 0) {
+          this.mensaje = 'No tienes mercancías autorizadas para consultar.';
+        } else {
+          this.mensaje =
+            `Se encontraron ${this.mercanciasVisibles.length} mercancía(s) visible(s).`;
+        }
       }
     } catch (error: any) {
       console.error('Error cargando mercancías visibles:', error);
@@ -751,6 +772,129 @@ export class App implements OnDestroy {
     if (this.listaMercanciasCargada) {
       await this.cargarMercanciasVisibles();
     }
+  }
+
+  // =========================================================
+  // CENTRO DE CONTROL ADUANAL: INDICADORES Y BANDEJA POR ROL
+  // =========================================================
+
+  public contarPorEstado(estado: string): number {
+    return this.mercanciasVisibles.filter(
+      (lote) => lote.estado === estado
+    ).length;
+  }
+
+  public obtenerTituloBandeja(): string {
+    const titulos: Record<string, string> = {
+      Administrador: 'Supervisión general',
+      Operador: 'Seguimiento operativo',
+      Autoridad: 'Pendientes de revisión',
+      Agente: 'Pendientes de entrega',
+      'Cliente Autorizado': 'Seguimiento disponible',
+    };
+
+    return titulos[this.rolActual] || 'Actividad operativa';
+  }
+
+  public obtenerTextoBandeja(): string {
+    const textos: Record<string, string> = {
+      Administrador:
+        'Revisa el avance general y atiende las mercancías que continúan en proceso.',
+      Operador:
+        'Registra nuevas cargas y consulta el avance de cada operación aduanal.',
+      Autoridad:
+        'Atiende las mercancías que requieren iniciar revisión o ser aprobadas.',
+      Agente:
+        'Confirma la entrega únicamente de mercancías aprobadas y asignadas a tu wallet.',
+      'Cliente Autorizado':
+        'Consulta el avance y la evidencia blockchain de tus mercancías autorizadas.',
+    };
+
+    return textos[this.rolActual] || 'Consulta el estado actual de los lotes.';
+  }
+
+  public obtenerEtiquetaBandeja(): string {
+    const cantidad = this.obtenerTareasPrioritarias().length;
+
+    if (this.rolActual === 'Cliente Autorizado') {
+      return `${cantidad} en seguimiento`;
+    }
+
+    if (this.rolActual === 'Administrador') {
+      return `${cantidad} por atender`;
+    }
+
+    return `${cantidad} pendiente${cantidad === 1 ? '' : 's'}`;
+  }
+
+  public obtenerEncabezadoSinTareas(): string {
+    const encabezados: Record<string, string> = {
+      Administrador: 'Operación al día',
+      Operador: 'Sin seguimiento pendiente',
+      Autoridad: 'Revisión al día',
+      Agente: 'Operación al día',
+      'Cliente Autorizado': 'Sin mercancías disponibles',
+    };
+
+    return encabezados[this.rolActual] || 'Sin pendientes';
+  }
+
+  public obtenerTareasPrioritarias(): any[] {
+    let estadosObjetivo: string[] = [];
+
+    switch (this.rolActual) {
+      case 'Administrador':
+        estadosObjetivo = ['Registrada', 'En revisión', 'Aprobada'];
+        break;
+      case 'Operador':
+        estadosObjetivo = ['Registrada', 'En revisión'];
+        break;
+      case 'Autoridad':
+        estadosObjetivo = ['Registrada', 'En revisión'];
+        break;
+      case 'Agente':
+        estadosObjetivo = ['Aprobada'];
+        break;
+      case 'Cliente Autorizado':
+        estadosObjetivo = ['Registrada', 'En revisión', 'Aprobada', 'Entregada'];
+        break;
+      default:
+        return [];
+    }
+
+    return this.mercanciasVisibles
+      .filter((lote) => estadosObjetivo.includes(lote.estado))
+      .slice(0, 3);
+  }
+
+  public obtenerAccionTarea(lote: any): string {
+    if (this.rolActual === 'Autoridad') {
+      return lote.estado === 'Registrada'
+        ? 'Iniciar revisión'
+        : 'Revisar aprobación';
+    }
+
+    if (this.rolActual === 'Agente') {
+      return 'Preparar entrega';
+    }
+
+    if (this.rolActual === 'Administrador') {
+      return 'Supervisar';
+    }
+
+    return 'Ver seguimiento';
+  }
+
+  public obtenerMensajeSinTareas(): string {
+    const mensajes: Record<string, string> = {
+      Administrador: 'No hay lotes operativos pendientes en este momento.',
+      Operador: 'No hay cargas registradas pendientes de seguimiento.',
+      Autoridad: 'No hay mercancías pendientes de revisión o aprobación.',
+      Agente: 'No tienes entregas aprobadas pendientes por confirmar.',
+      'Cliente Autorizado': 'No hay mercancías asignadas a esta wallet.',
+    };
+
+    return mensajes[this.rolActual] || 'No hay actividad pendiente.';
   }
 
   // =========================================================

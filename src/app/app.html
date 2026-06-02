@@ -384,6 +384,150 @@
         }
       </section>
 
+      @if (puedeConsultar() && rolActual !== 'Ninguno') {
+        <section class="panel control-tower centro-control">
+          <div class="panel-encabezado control-tower-header">
+            <div>
+              <span class="control-tower-etiqueta">Centro de Control Aduanal</span>
+              <h3>Resumen operativo</h3>
+              <p>
+                Seguimiento operativo de las mercancías disponibles para tu rol.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cargarMercanciasVisibles()"
+              [disabled]="cargandoMercancias"
+            >
+              {{ cargandoMercancias ? 'Actualizando...' : 'Actualizar panorama ↻' }}
+            </button>
+          </div>
+
+          @if (cargandoMercancias && !listaMercanciasCargada) {
+            <div class="centro-control-grid" aria-label="Cargando resumen operativo">
+              <article class="centro-panel estado-panel skeleton-card">
+                <span class="skeleton-linea skeleton-titulo"></span>
+                <div class="estado-metricas">
+                  @for (item of [1, 2, 3, 4]; track item) {
+                    <div class="metrica-card skeleton-card">
+                      <span class="skeleton-linea skeleton-corta"></span>
+                      <span class="skeleton-linea skeleton-numero"></span>
+                    </div>
+                  }
+                </div>
+              </article>
+
+              <article class="centro-panel bandeja-card bandeja-cargando">
+                <span class="skeleton-linea skeleton-titulo"></span>
+                <span class="skeleton-linea skeleton-texto"></span>
+                <span class="skeleton-linea skeleton-texto corta"></span>
+              </article>
+            </div>
+          } @else {
+            <div class="centro-control-grid">
+              <article class="centro-panel estado-panel">
+                <div class="centro-panel-titulo">
+                  <h4>
+                    {{ rolActual === 'Cliente Autorizado' ? 'Estado de tus mercancías' : 'Estado de mercancías' }}
+                  </h4>
+                  <span class="panel-cantidad">{{ mercanciasVisibles.length }} visibles</span>
+                </div>
+
+                <div class="estado-metricas">
+                  <article class="metrica-card metrica-registrada">
+                    <span class="metrica-icono">⬡</span>
+                    <div>
+                      <strong>{{ contarPorEstado('Registrada') }}</strong>
+                      <small>Registradas</small>
+                    </div>
+                  </article>
+
+                  <article class="metrica-card metrica-revision">
+                    <span class="metrica-icono">↻</span>
+                    <div>
+                      <strong>{{ contarPorEstado('En revisión') }}</strong>
+                      <small>En revisión</small>
+                    </div>
+                  </article>
+
+                  <article class="metrica-card metrica-aprobada">
+                    <span class="metrica-icono">✓</span>
+                    <div>
+                      <strong>{{ contarPorEstado('Aprobada') }}</strong>
+                      <small>Aprobadas</small>
+                    </div>
+                  </article>
+
+                  <article class="metrica-card metrica-entregada">
+                    <span class="metrica-icono">◉</span>
+                    <div>
+                      <strong>{{ contarPorEstado('Entregada') }}</strong>
+                      <small>Entregadas</small>
+                    </div>
+                  </article>
+                </div>
+              </article>
+
+              <article class="centro-panel bandeja-card">
+                <div class="bandeja-encabezado">
+                  <div>
+                    <h4>{{ obtenerTituloBandeja() }}</h4>
+                    <p>{{ obtenerTextoBandeja() }}</p>
+                  </div>
+
+                  <span class="bandeja-total">
+                    {{ obtenerEtiquetaBandeja() }}
+                  </span>
+                </div>
+
+                @if (obtenerTareasPrioritarias().length > 0) {
+                  <div class="tareas-lista">
+                    @for (lote of obtenerTareasPrioritarias(); track lote.id) {
+                      <button
+                        type="button"
+                        class="tarea-item"
+                        (click)="seleccionarMercancia(lote.id)"
+                      >
+                        <span class="tarea-id">#{{ lote.id }}</span>
+
+                        <span class="tarea-contenido">
+                          <strong>{{ lote.tipoMercancia }}</strong>
+                          <small>{{ lote.origen }} → {{ lote.destinoAduanal }}</small>
+                        </span>
+
+                        <span
+                          class="estado-badge"
+                          [class.estado-registrada]="lote.estado === 'Registrada'"
+                          [class.estado-revision]="lote.estado === 'En revisión'"
+                          [class.estado-aprobada]="lote.estado === 'Aprobada'"
+                          [class.estado-entregada]="lote.estado === 'Entregada'"
+                        >
+                          {{ lote.estado }}
+                        </span>
+
+                        <span class="tarea-accion">
+                          {{ obtenerAccionTarea(lote) }} →
+                        </span>
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <div class="bandeja-vacia bandeja-compacta">
+                    <span>✓</span>
+                    <div>
+                      <strong>{{ obtenerEncabezadoSinTareas() }}</strong>
+                      <p>{{ obtenerMensajeSinTareas() }}</p>
+                    </div>
+                  </div>
+                }
+              </article>
+            </div>
+          }
+        </section>
+      }
+
       @if (
         puedeAdministrar() ||
         puedeRegistrarMercancia() ||
@@ -713,8 +857,22 @@
           </div>
 
           @if (cargandoMercancias) {
-            <div class="estado-cargando">
-              Cargando mercancías autorizadas...
+            <div class="tabla-skeleton" aria-label="Cargando mercancías">
+              <div class="tabla-skeleton-encabezado">
+                <span class="skeleton-linea"></span>
+                <span class="skeleton-linea"></span>
+                <span class="skeleton-linea"></span>
+                <span class="skeleton-linea"></span>
+              </div>
+
+              @for (fila of [1, 2, 3]; track fila) {
+                <div class="tabla-skeleton-fila">
+                  <span class="skeleton-linea skeleton-id"></span>
+                  <span class="skeleton-linea"></span>
+                  <span class="skeleton-linea"></span>
+                  <span class="skeleton-linea skeleton-badge"></span>
+                </div>
+              }
             </div>
           }
 
@@ -909,7 +1067,22 @@
             </div>
           </div>
 
-          @if (historial.length > 0) {
+          @if (cargandoHistorial) {
+            <div class="timeline timeline-skeleton" aria-label="Buscando evidencia blockchain">
+              @for (evento of [1, 2, 3]; track evento) {
+                <article class="timeline-item">
+                  <div class="timeline-punto skeleton-punto"></div>
+
+                  <div class="timeline-card skeleton-card">
+                    <span class="skeleton-linea skeleton-titulo"></span>
+                    <span class="skeleton-linea skeleton-texto"></span>
+                    <span class="skeleton-linea skeleton-texto corta"></span>
+                    <span class="skeleton-linea skeleton-boton"></span>
+                  </div>
+                </article>
+              }
+            </div>
+          } @else if (historial.length > 0) {
             <div class="timeline">
               @for (mov of historial; track mov.hash) {
                 <article class="timeline-item">
