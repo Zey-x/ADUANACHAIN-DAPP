@@ -18,7 +18,9 @@
       <div class="landing-hero-texto">
         <h2>AduanaChain</h2>
 
-        <p>Plataforma de gestión y seguimiento aduanal basada en blockchain.</p>
+        <p>
+          Plataforma de gestión y seguimiento aduanal basada en blockchain.
+        </p>
       </div>
 
       <div class="landing-hero-visual" aria-hidden="true">
@@ -44,9 +46,10 @@
           <h3>¿Qué es AduanaChain?</h3>
 
           <p>
-            AduanaChain utiliza tecnología blockchain para registrar, consultar y dar seguimiento a
-            mercancías durante su proceso aduanal, conectando a los actores autorizados en un
-            entorno seguro y verificable.
+            AduanaChain utiliza tecnología blockchain para registrar, consultar
+            y dar seguimiento a mercancías durante su proceso aduanal,
+            conectando a los actores autorizados en un entorno seguro y
+            verificable.
           </p>
         </div>
       </article>
@@ -96,8 +99,8 @@
         <h3>Conecta tu wallet</h3>
 
         <p>
-          Conecta MetaMask para acceder a la plataforma y comenzar a gestionar tus operaciones
-          aduanales.
+          Conecta MetaMask para acceder a la plataforma y comenzar a gestionar
+          tus operaciones aduanales.
         </p>
 
         <button
@@ -114,10 +117,14 @@
           }
         </button>
 
-        <small> 🔒 No almacenamos tus claves. Tu conexión permanece bajo tu control. </small>
+        <small>
+          🔒 No almacenamos tus claves. Tu conexión permanece bajo tu control.
+        </small>
 
         @if (iniciandoSesion) {
-          <p class="landing-cargando">Consultando tu rol y permisos dentro de AduanaChain...</p>
+          <p class="landing-cargando">
+            Consultando tu rol y permisos dentro de AduanaChain...
+          </p>
         }
 
         @if (mensaje && !iniciandoSesion && web3.account() && !sesionLista) {
@@ -201,7 +208,11 @@
           </a>
         }
 
-        @if (puedeRegistrarMercancia() || puedeRevisarOAprobar() || puedeConfirmarEntrega()) {
+        @if (
+          puedeRegistrarMercancia() ||
+          puedeRevisarOAprobar() ||
+          puedeConfirmarEntrega()
+        ) {
           <p class="menu-titulo">Operaciones</p>
         }
 
@@ -255,9 +266,13 @@
           <div class="wallet-avatar">◉</div>
 
           <div class="wallet-info">
-            <p class="wallet-direccion" [title]="web3.account() || ''">
+            <p
+              class="wallet-direccion"
+              [title]="web3.account() || ''"
+            >
               {{ abreviarWallet(web3.account()) }}
             </p>
+
             <p class="wallet-rol">{{ rolActual || 'Sin rol cargado' }}</p>
           </div>
         </div>
@@ -269,10 +284,15 @@
         <div>
           @if (rolActual === 'Ninguno') {
             <h2>Wallet sin acceso asignado</h2>
-            <p>Esta cuenta no tiene un rol registrado dentro de AduanaChain.</p>
+            <p>
+              Esta cuenta no tiene un rol registrado dentro de AduanaChain.
+            </p>
           } @else {
             <h2>¡Bienvenido, {{ rolActual }}!</h2>
-            <p>Gestiona y consulta las operaciones aduanales disponibles para tu rol.</p>
+            <p>
+              Gestiona y consulta las operaciones aduanales disponibles para tu
+              rol.
+            </p>
           }
         </div>
 
@@ -317,7 +337,10 @@
             <div class="resumen-contenido">
               <span>Cuenta conectada</span>
 
-              <strong class="wallet-resumen-direccion" [title]="web3.account() || ''">
+              <strong
+                class="wallet-resumen-direccion"
+                [title]="web3.account() || ''"
+              >
                 {{ abreviarWallet(web3.account()) }}
               </strong>
             </div>
@@ -336,7 +359,7 @@
             <article class="resumen-card resumen-total">
               <div class="resumen-icono">⬡</div>
 
-              <div>
+              <div class="resumen-contenido">
                 <span>Total mercancías</span>
                 <strong>{{ totalMercancias || '0' }}</strong>
               </div>
@@ -346,7 +369,7 @@
           <article class="resumen-card resumen-red">
             <div class="resumen-icono">◈</div>
 
-            <div>
+            <div class="resumen-contenido">
               <span>Red conectada</span>
               <strong>Sepolia</strong>
             </div>
@@ -392,7 +415,10 @@
                 <div class="formulario-accion">
                   <h4>Administrar usuarios</h4>
 
-                  <p>Registra una wallet y asigna el rol que tendrá dentro de AduanaChain.</p>
+                  <p>
+                    Registra una wallet y asigna el rol que tendrá dentro de
+                    AduanaChain.
+                  </p>
 
                   <label for="walletUsuario">Wallet del usuario</label>
 
@@ -413,9 +439,15 @@
                   </select>
 
                   <div class="acciones-formulario">
-                    <button type="button" (click)="registrarUsuario()">Registrar usuario</button>
+                    <button type="button" (click)="registrarUsuario()">
+                      Registrar usuario
+                    </button>
 
-                    <button type="button" class="boton-secundario" (click)="consultarRol()">
+                    <button
+                      type="button"
+                      class="boton-secundario"
+                      (click)="consultarRol()"
+                    >
                       Consultar rol
                     </button>
                   </div>
@@ -446,7 +478,10 @@
                 <div class="formulario-accion">
                   <h4>Registrar mercancía</h4>
 
-                  <p>Selecciona los datos básicos de la carga y asigna un Cliente Autorizado.</p>
+                  <p>
+                    Selecciona los datos básicos de la carga y asigna un Cliente
+                    Autorizado.
+                  </p>
 
                   <label for="descripcion">Tipo de mercancía</label>
 
@@ -454,8 +489,12 @@
                     <option value="" disabled>Selecciona una opción</option>
                     <option value="Electronicos">Electrónicos</option>
                     <option value="Textiles">Textiles</option>
-                    <option value="Refacciones automotrices">Refacciones automotrices</option>
-                    <option value="Alimentos empaquetados">Alimentos empaquetados</option>
+                    <option value="Refacciones automotrices">
+                      Refacciones automotrices
+                    </option>
+                    <option value="Alimentos empaquetados">
+                      Alimentos empaquetados
+                    </option>
                     <option value="Maquinaria">Maquinaria</option>
                   </select>
 
@@ -475,13 +514,21 @@
                   <select id="destino" [(ngModel)]="destino">
                     <option value="" disabled>Selecciona una opción</option>
                     <option value="Veracruz, Mexico">Veracruz, México</option>
-                    <option value="Nuevo Laredo, Mexico">Nuevo Laredo, México</option>
-                    <option value="Manzanillo, Mexico">Manzanillo, México</option>
+                    <option value="Nuevo Laredo, Mexico">
+                      Nuevo Laredo, México
+                    </option>
+                    <option value="Manzanillo, Mexico">
+                      Manzanillo, México
+                    </option>
                     <option value="Tijuana, Mexico">Tijuana, México</option>
-                    <option value="Ciudad de Mexico, Mexico">Ciudad de México, México</option>
+                    <option value="Ciudad de Mexico, Mexico">
+                      Ciudad de México, México
+                    </option>
                   </select>
 
-                  <label for="clienteAutorizado"> Wallet del Cliente Autorizado </label>
+                  <label for="clienteAutorizado">
+                    Wallet del Cliente Autorizado
+                  </label>
 
                   <input
                     id="clienteAutorizado"
@@ -491,10 +538,13 @@
                   />
 
                   <p class="ayuda">
-                    Esta wallet debe estar registrada previamente como Cliente Autorizado.
+                    Esta wallet debe estar registrada previamente como Cliente
+                    Autorizado.
                   </p>
 
-                  <button type="button" (click)="registrarMercancia()">Registrar mercancía</button>
+                  <button type="button" (click)="registrarMercancia()">
+                    Registrar mercancía
+                  </button>
                 </div>
               </details>
             }
@@ -515,7 +565,10 @@
                 <div class="formulario-accion">
                   <h4>Autorizar wallet para una mercancía</h4>
 
-                  <p>Permite agregar una wallet autorizada a una carga específica ya registrada.</p>
+                  <p>
+                    Permite agregar una wallet autorizada a una carga específica
+                    ya registrada.
+                  </p>
 
                   <label for="idMercanciaAutorizar">ID de mercancía</label>
 
@@ -579,7 +632,9 @@
                     <option [value]="2">Aprobada</option>
                   </select>
 
-                  <button type="button" (click)="cambiarEstado()">Actualizar estado</button>
+                  <button type="button" (click)="cambiarEstado()">
+                    Actualizar estado
+                  </button>
                 </div>
               </details>
             }
@@ -602,12 +657,13 @@
 
                   @if (puedeConfirmarEntrega()) {
                     <p>
-                      Puedes confirmar la entrega de mercancías asignadas que ya se encuentren en
-                      estado <strong>Aprobada</strong>.
+                      Puedes confirmar la entrega de mercancías asignadas que
+                      ya se encuentren en estado <strong>Aprobada</strong>.
                     </p>
                   } @else {
                     <p>
-                      Como Administrador, puedes ejecutar esta operación con fines de demostración.
+                      Como Administrador, puedes ejecutar esta operación con
+                      fines de demostración.
                     </p>
                   }
 
@@ -620,7 +676,9 @@
                     [(ngModel)]="idEntrega"
                   />
 
-                  <button type="button" (click)="confirmarEntrega()">Confirmar entrega</button>
+                  <button type="button" (click)="confirmarEntrega()">
+                    Confirmar entrega
+                  </button>
                 </div>
               </details>
             }
@@ -645,16 +703,26 @@
               }
             </div>
 
-            <button type="button" class="boton-secundario" (click)="cargarMercanciasVisibles()">
+            <button
+              type="button"
+              class="boton-secundario"
+              (click)="cargarMercanciasVisibles()"
+            >
               Actualizar lista ↻
             </button>
           </div>
 
           @if (cargandoMercancias) {
-            <div class="estado-cargando">Cargando mercancías autorizadas...</div>
+            <div class="estado-cargando">
+              Cargando mercancías autorizadas...
+            </div>
           }
 
-          @if (!cargandoMercancias && listaMercanciasCargada && mercanciasVisibles.length === 0) {
+          @if (
+            !cargandoMercancias &&
+            listaMercanciasCargada &&
+            mercanciasVisibles.length === 0
+          ) {
             <div class="estado-vacio-tabla">
               <p>No hay mercancías disponibles para esta wallet.</p>
             </div>
@@ -748,7 +816,9 @@
               [(ngModel)]="idConsulta"
             />
 
-            <button type="button" (click)="consultarMercancia()">Ver</button>
+            <button type="button" (click)="consultarMercancia()">
+              Ver
+            </button>
           </div>
 
           <button
@@ -757,7 +827,11 @@
             (click)="consultarHistorial()"
             [disabled]="cargandoHistorial"
           >
-            {{ cargandoHistorial ? 'Cargando historial...' : 'Consultar historial verificable' }}
+            {{
+              cargandoHistorial
+                ? 'Cargando historial...'
+                : 'Consultar historial verificable'
+            }}
           </button>
 
           @if (mercancia) {
@@ -820,7 +894,9 @@
           } @else {
             <div class="detalle-vacio">
               <span>⬡</span>
-              <p>Selecciona una mercancía de la tabla para ver su información.</p>
+              <p>
+                Selecciona una mercancía de la tabla para ver su información.
+              </p>
             </div>
           }
         </section>
@@ -829,27 +905,45 @@
           <div class="panel-encabezado">
             <div>
               <h3>Historial verificable</h3>
-              <p>Movimientos registrados en Sepolia</p>
+              <p>Movimientos y autorizaciones registrados en Sepolia</p>
             </div>
           </div>
 
           @if (historial.length > 0) {
             <div class="timeline">
-              @for (mov of historial; track mov.fecha; let i = $index) {
+              @for (mov of historial; track mov.hash) {
                 <article class="timeline-item">
-                  <div class="timeline-punto" [class.timeline-inicial]="i === 0">
-                    {{ i === 0 ? '+' : '↻' }}
+                  <div
+                    class="timeline-punto"
+                    [class.timeline-inicial]="mov.tipo === 'registro'"
+                  >
+                    {{
+                      mov.tipo === 'registro'
+                        ? '+'
+                        : mov.tipo === 'autorizacion'
+                          ? '◇'
+                          : '↻'
+                    }}
                   </div>
 
                   <div class="timeline-card">
-                    @if (
-                      i === 0 &&
-                      mov.estadoAnterior === 'Registrada' &&
-                      mov.estadoNuevo === 'Registrada'
-                    ) {
+                    @if (mov.tipo === 'registro') {
                       <h4>Mercancía registrada</h4>
 
-                      <span class="estado-badge estado-registrada"> Registrada </span>
+                      <span class="estado-badge estado-registrada">
+                        Registrada
+                      </span>
+                    } @else if (mov.tipo === 'autorizacion') {
+                      <h4>Wallet autorizada</h4>
+
+                      <span class="estado-badge estado-aprobada">
+                        {{ mov.rolAutorizado }}
+                      </span>
+
+                      <p class="timeline-wallet">
+                        <span>Wallet autorizada:</span>
+                        {{ abreviarWallet(mov.walletAutorizada || null) }}
+                      </p>
                     } @else {
                       <h4>{{ mov.estadoAnterior }} → {{ mov.estadoNuevo }}</h4>
 
@@ -865,21 +959,19 @@
 
                     <p class="timeline-wallet">
                       <span>Realizado por:</span>
-                      {{ mov.realizadoPor }}
+                      {{ abreviarWallet(mov.realizadoPor) }}
                     </p>
 
                     <p class="timeline-fecha">{{ mov.fecha }}</p>
 
-                    @if (comprobantesHistorial[i]) {
-                      <a
-                        class="enlace-sepolia"
-                        [href]="comprobantesHistorial[i].url"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Ver en Sepolia ↗
-                      </a>
-                    }
+                    <a
+                      class="enlace-sepolia"
+                      [href]="mov.url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Ver en Sepolia ↗
+                    </a>
                   </div>
                 </article>
               }
@@ -887,7 +979,9 @@
           } @else {
             <div class="detalle-vacio historial-vacio">
               <span>◷</span>
-              <p>Consulta una mercancía para visualizar su historial blockchain.</p>
+              <p>
+                Consulta una mercancía para visualizar su historial blockchain.
+              </p>
             </div>
           }
         </section>
@@ -898,8 +992,8 @@
           <h3>Acceso no autorizado</h3>
 
           <p>
-            Tu wallet no tiene un rol asignado dentro de AduanaChain. Contacta al Administrador para
-            solicitar acceso.
+            Tu wallet no tiene un rol asignado dentro de AduanaChain. Contacta
+            al Administrador para solicitar acceso.
           </p>
         </section>
       }
@@ -951,7 +1045,11 @@
 
             <p>{{ mensajeDesconexion }}</p>
 
-            <button type="button" class="boton-modal-cerrar" (click)="cerrarModalDesconexion()">
+            <button
+              type="button"
+              class="boton-modal-cerrar"
+              (click)="cerrarModalDesconexion()"
+            >
               Volver al dashboard
             </button>
           }
@@ -980,7 +1078,12 @@
 
           <p>{{ toastMensaje }}</p>
 
-          <a class="boton-enlace" [href]="toastUrl" target="_blank" rel="noopener noreferrer">
+          <a
+            class="boton-enlace"
+            [href]="toastUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Ver en Sepolia
           </a>
         </div>
