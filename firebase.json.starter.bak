@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/aduanachain-dapp/browser",
+    "public": "dist/angular-hardhat-starter-dapp/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
