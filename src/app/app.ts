@@ -115,6 +115,17 @@ export class App implements OnDestroy {
   public urlTransaccion = '';
 
   // =========================================================
+  // ÚLTIMA OPERACIÓN VERIFICADA
+  // =========================================================
+
+  public ultimaOperacionVisible = false;
+  public ultimaOperacionTitulo = '';
+  public ultimaOperacionDetalle = '';
+  public ultimaOperacionHash = '';
+  public ultimaOperacionUrl = '';
+  public ultimaOperacionFecha = '';
+
+  // =========================================================
   // LIMPIEZA DEL COMPONENTE
   // =========================================================
 
@@ -246,13 +257,32 @@ export class App implements OnDestroy {
     this.referenciaTransaccion = referencia;
     this.urlTransaccion = '';
     this.actualizarVista();
+    this.ultimaOperacionVisible = false;
+    this.ultimaOperacionTitulo = '';
+    this.ultimaOperacionDetalle = '';
+    this.ultimaOperacionHash = '';
+    this.ultimaOperacionUrl = '';
+    this.ultimaOperacionFecha = '';
   }
 
   private confirmarModalTransaccion(titulo: string, mensaje: string, hash: string): void {
+    const urlComprobante = this.web3.obtenerUrlTransaccion(hash);
+
     this.estadoTransaccion = 'confirmada';
     this.tituloTransaccion = titulo;
     this.mensajeTransaccion = mensaje;
-    this.urlTransaccion = this.web3.obtenerUrlTransaccion(hash);
+    this.urlTransaccion = urlComprobante;
+
+    this.ultimaOperacionVisible = true;
+    this.ultimaOperacionTitulo = titulo;
+    this.ultimaOperacionDetalle = this.referenciaTransaccion || mensaje;
+    this.ultimaOperacionHash = hash;
+    this.ultimaOperacionUrl = urlComprobante;
+    this.ultimaOperacionFecha = new Intl.DateTimeFormat('es-MX', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    }).format(new Date());
+
     this.actualizarVista();
   }
 
@@ -1086,6 +1116,18 @@ export class App implements OnDestroy {
     }
 
     return `${wallet.slice(0, 10)}...${wallet.slice(-8)}`;
+  }
+
+  public abreviarHash(hash: string): string {
+    if (!hash) {
+      return '';
+    }
+
+    if (hash.length <= 22) {
+      return hash;
+    }
+
+    return `${hash.slice(0, 12)}...${hash.slice(-10)}`;
   }
 
   private actualizarVista(): void {

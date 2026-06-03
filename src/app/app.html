@@ -409,6 +409,7 @@
             <div class="centro-control-grid" aria-label="Cargando resumen operativo">
               <article class="centro-panel estado-panel skeleton-card">
                 <span class="skeleton-linea skeleton-titulo"></span>
+
                 <div class="estado-metricas">
                   @for (item of [1, 2, 3, 4]; track item) {
                     <div class="metrica-card skeleton-card">
@@ -432,12 +433,16 @@
                   <h4>
                     {{ rolActual === 'Cliente Autorizado' ? 'Estado de tus mercancías' : 'Estado de mercancías' }}
                   </h4>
-                  <span class="panel-cantidad">{{ mercanciasVisibles.length }} visibles</span>
+
+                  <span class="panel-cantidad">
+                    {{ mercanciasVisibles.length }} visibles
+                  </span>
                 </div>
 
                 <div class="estado-metricas">
                   <article class="metrica-card metrica-registrada">
                     <span class="metrica-icono">⬡</span>
+
                     <div>
                       <strong>{{ contarPorEstado('Registrada') }}</strong>
                       <small>Registradas</small>
@@ -446,6 +451,7 @@
 
                   <article class="metrica-card metrica-revision">
                     <span class="metrica-icono">↻</span>
+
                     <div>
                       <strong>{{ contarPorEstado('En revisión') }}</strong>
                       <small>En revisión</small>
@@ -454,6 +460,7 @@
 
                   <article class="metrica-card metrica-aprobada">
                     <span class="metrica-icono">✓</span>
+
                     <div>
                       <strong>{{ contarPorEstado('Aprobada') }}</strong>
                       <small>Aprobadas</small>
@@ -462,6 +469,7 @@
 
                   <article class="metrica-card metrica-entregada">
                     <span class="metrica-icono">◉</span>
+
                     <div>
                       <strong>{{ contarPorEstado('Entregada') }}</strong>
                       <small>Entregadas</small>
@@ -516,6 +524,7 @@
                 } @else {
                   <div class="bandeja-vacia bandeja-compacta">
                     <span>✓</span>
+
                     <div>
                       <strong>{{ obtenerEncabezadoSinTareas() }}</strong>
                       <p>{{ obtenerMensajeSinTareas() }}</p>
@@ -525,6 +534,60 @@
               </article>
             </div>
           }
+        </section>
+      }
+
+      <!-- ===================================================== -->
+      <!-- ÚLTIMA OPERACIÓN VERIFICADA -->
+      <!-- ===================================================== -->
+      @if (ultimaOperacionVisible) {
+        <section class="ultima-operacion">
+          <div class="ultima-operacion-icono">✓</div>
+
+          <div class="ultima-operacion-contenido">
+            <span class="ultima-operacion-etiqueta">
+              Última operación verificada
+            </span>
+
+            <div class="ultima-operacion-titulo">
+              <h3>{{ ultimaOperacionTitulo }}</h3>
+              <span class="ultima-operacion-red">Sepolia</span>
+            </div>
+
+            <p>{{ ultimaOperacionDetalle }}</p>
+
+            <div class="ultima-operacion-meta">
+              <span>
+                <strong>Hash:</strong>
+                {{ abreviarHash(ultimaOperacionHash) }}
+              </span>
+
+              <span>
+                <strong>Confirmada:</strong>
+                {{ ultimaOperacionFecha }}
+              </span>
+            </div>
+          </div>
+
+          <div class="ultima-operacion-acciones">
+            <a
+              class="ultima-operacion-enlace"
+              [href]="ultimaOperacionUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ver comprobante ↗
+            </a>
+
+            <button
+              type="button"
+              class="ultima-operacion-cerrar"
+              (click)="ultimaOperacionVisible = false"
+              aria-label="Ocultar última operación"
+            >
+              ×
+            </button>
+          </div>
         </section>
       }
 
@@ -1064,7 +1127,10 @@
           </div>
 
           @if (cargandoHistorial) {
-            <div class="timeline timeline-skeleton" aria-label="Buscando evidencia blockchain">
+            <div
+              class="timeline timeline-skeleton"
+              aria-label="Buscando evidencia blockchain"
+            >
               @for (evento of [1, 2, 3]; track evento) {
                 <article class="timeline-item">
                   <div class="timeline-punto skeleton-punto"></div>
@@ -1167,6 +1233,7 @@
         </section>
       }
     </aside>
+
     <!-- ===================================================== -->
     <!-- MODAL DE OPERACIÓN BLOCKCHAIN -->
     <!-- ===================================================== -->
